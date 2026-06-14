@@ -112,6 +112,22 @@
                     android:max="200"
                     android:progressTint="@color/accentElectric"
                     android:progressBackgroundTint="#EDF2F7" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnRescueGuide"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Rescue Guide"
+                    android:textAllCaps="false"
+                    android:textStyle="bold"
+                    android:textColor="@color/primaryNavy"
+                    android:background="@drawable/bg_status_chip"
+                    android:backgroundTint="#EDF2F7"
+                    android:drawableStart="@android:drawable/ic_menu_help"
+                    android:paddingHorizontal="16dp"
+                    android:drawablePadding="8dp"
+                    android:drawableTint="@color/primaryNavy"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

@@ -40,6 +40,11 @@
         <activity
             android:name=".SelectDeviceActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".RescueGuideActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
 
 </manifest>

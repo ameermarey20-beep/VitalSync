@@ -14,6 +14,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.StorageReference;
@@ -26,6 +27,7 @@ public class ProfileFragment extends Fragment {
     private ImageView ivProfilePic;
     private FloatingActionButton fabEditPic;
     private TextInputEditText etAge, etBloodType, etWeight, etHeight, etConditions;
+    private SwitchMaterial swAthlete;
     private Button btnSaveProfile, btnLogout;
     private Uri imageUri;
 
@@ -51,6 +53,7 @@ public class ProfileFragment extends Fragment {
         etWeight = view.findViewById(R.id.etWeight);
         etHeight = view.findViewById(R.id.etHeight);
         etConditions = view.findViewById(R.id.etConditions);
+        swAthlete = view.findViewById(R.id.swAthlete);
         btnSaveProfile = view.findViewById(R.id.btnSaveProfile);
         btnLogout = view.findViewById(R.id.btnLogout);
 
@@ -87,6 +90,12 @@ public class ProfileFragment extends Fragment {
                             etWeight.setText(documentSnapshot.getString("weight"));
                             etHeight.setText(documentSnapshot.getString("height"));
                             etConditions.setText(documentSnapshot.getString("conditions"));
+                            
+                            Boolean isAthlete = documentSnapshot.getBoolean("isAthlete");
+                            if (isAthlete != null) {
+                                swAthlete.setChecked(isAthlete);
+                            }
+
                             String photoUrl = documentSnapshot.getString("profilePicUrl");
                             if (photoUrl != null && !photoUrl.isEmpty()) {
                                 Picasso.get().load(photoUrl).placeholder(android.R.drawable.ic_menu_gallery).into(ivProfilePic);
@@ -126,6 +135,7 @@ public class ProfileFragment extends Fragment {
         healthData.put("weight", etWeight.getText().toString());
         healthData.put("height", etHeight.getText().toString());
         healthData.put("conditions", etConditions.getText().toString());
+        healthData.put("isAthlete", swAthlete.isChecked());
 
         FireBaseServices.getInstance().getFirestore().collection("users")
                 .document(user.getUid())

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
+    android:fillViewport="true"
+    android:layoutDirection="rtl">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:id="@+id/tvGuideHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="دليل الإنقاذ"
+                android:textSize="28sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/primaryNavy"
+                android:layout_alignParentStart="true" />
+
+            <TextView
+                android:id="@+id/tvCurrentStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tvGuideHeader"
+                android:layout_marginTop="6dp"
+                android:text="القراءة الحالية: -- نبضة/دقيقة"
+                android:textSize="14sp"
+                android:textColor="@color/textSecondary"
+                android:layout_alignParentStart="true" />
+        </RelativeLayout>
+
+        <!-- Dynamic Condition Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardCondition"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="12dp"
+            android:layout_marginBottom="32dp">
+
+            <LinearLayout
+                android:id="@+id/llCardContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="28dp">
+
+                <ImageView
+                    android:id="@+id/ivConditionIcon"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="20dp"
+                    android:src="@android:drawable/ic_dialog_alert" />
+
+                <TextView
+                    android:id="@+id/tvConditionTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="تحليل الحالة..."
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primaryNavy"
+                    android:layout_marginBottom="16dp"/>
+
+                <TextView
+                    android:id="@+id/tvInstructions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="يرجى الانتظار حتى نحدد أفضل مسار للعمل."
+                    android:textSize="16sp"
+                    android:textColor="@color/textPrimary"
+                    android:lineSpacingExtra="6dp"
+                    android:gravity="center" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Emergency Action Button -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnEmergencyCall"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:text="اتصال بالطوارئ (101)"
+            android:background="@drawable/bg_status_chip"
+            android:backgroundTint="@color/highText"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:elevation="8dp"
+            android:textAllCaps="false"
+            android:drawableStart="@android:drawable/ic_menu_call"
+            android:paddingHorizontal="32dp"
+            android:drawablePadding="16dp"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="يوصى بالمساعدة الطبية المتخصصة للأعراض المستمرة."
+            android:textSize="12sp"
+            android:textColor="@color/textSecondary"
+            android:gravity="center"
+            android:fontFamily="sans-serif-light"/>
+
+    </LinearLayout>
+</ScrollView>

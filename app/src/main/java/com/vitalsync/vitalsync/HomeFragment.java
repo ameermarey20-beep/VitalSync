@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,8 +36,11 @@ public class HomeFragment extends Fragment {
     private TextView tvWelcome, tvHeartRate, tvCondition, tvConnectionStatus;
     private TextView tvOxygenValue, tvBatteryValue;
     private ProgressBar pulseProgressBar;
-    private Button btnConnectBluetooth;
+    private Button btnConnectBluetooth, btnRescueGuide;
     private LineChart liveChart;
+
+    private int lastBpmValue = 0;
+    private boolean isAthlete = false;
 
     // متغيرات البلوتوث لقراءة بيانات الروبوت
     private BluetoothAdapter bluetoothAdapter;
@@ -70,11 +74,23 @@ public class HomeFragment extends Fragment {
         tvBatteryValue = view.findViewById(R.id.tvBatteryValue);
         pulseProgressBar = view.findViewById(R.id.pulseProgressBar);
         liveChart = view.findViewById(R.id.liveChart);
+        btnRescueGuide = view.findViewById(R.id.btnRescueGuide);
 
         setupChart();
 
         // ربط زر البلوتوث المضاف للـ XML
         btnConnectBluetooth = view.findViewById(R.id.btnConnectBluetooth);
+
+        if (btnRescueGuide != null) {
+            btnRescueGuide.setOnClickListener(v -> {
+                Intent intent = new Intent(getActivity(), RescueGuideActivity.class);
+                intent.putExtra("BPM", lastBpmValue);
+                intent.putExtra("IS_ATHLETE", isAthlete);
+                startActivity(intent);
+            });
+        }
+
+        fetchUserAthleteStatus();
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -277,6 +293,7 @@ public class HomeFragment extends Fragment {
     // دالة تحديث المربعات والألوان والمؤشرات حسب النبض (دالتك الحالية مدمجة بالكامل)
     public void updateHeartRateUI(int bpm) {
         if (tvHeartRate != null) {
+            this.lastBpmValue = bpm;
             tvHeartRate.setText(String.valueOf(bpm));
             pulseProgressBar.setProgress(bpm);
 
@@ -304,6 +321,23 @@ public class HomeFragment extends Fragment {
                 saveHeartRateToFirestore(bpm);
                 lastSaveTime = currentTime;
             }
+        }
+    }
+
+    private void fetchUserAthleteStatus() {
+        FirebaseUser user = FireBaseServices.getInstance().getAuth().getCurrentUser();
+        if (user != null) {
+            FireBaseServices.getInstance().getFirestore().collection("users")
+                    .document(user.getUid())
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            Boolean athlete = documentSnapshot.getBoolean("isAthlete");
+                            if (athlete != null) {
+                                isAthlete = athlete;
+                            }
+                        }
+                    });
         }
     }
 
