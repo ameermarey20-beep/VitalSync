@@ -1,176 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F4F6F9"
-    android:fillViewport="true">
+    android:background="@color/backgroundColor"
+    android:orientation="vertical">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="24dp">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tvHistoryHeader"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="20dp">
+            android:text="History Logs"
+            android:textSize="28sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/primaryNavy" />
 
-            <TextView
-                android:id="@+id/tvHistoryTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="History Logs"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="#22262A" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/tvHistoryTitle"
-                android:layout_marginTop="4dp"
-                android:text="📊 3 Logs Recorded Today"
-                android:textSize="13sp"
-                android:textColor="#7A8086"
-                android:textStyle="bold"/>
-        </RelativeLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tvHistorySubtitle"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@android:drawable/dialog_holo_light_frame"
-            android:backgroundTint="#FFFFFF"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            android:elevation="2dp"
-            android:layout_marginBottom="12dp"
-            android:gravity="center_vertical">
+            android:layout_below="@id/tvHistoryHeader"
+            android:layout_marginTop="4dp"
+            android:text="Fetching records..."
+            android:textSize="13sp"
+            android:textColor="@color/textSecondary"
+            android:letterSpacing="0.02"/>
+    </RelativeLayout>
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Today, 10:45 PM"
-                    android:textSize="15sp"
-                    android:textColor="#22262A"
-                    android:textStyle="bold"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Pulse: 105 BPM"
-                    android:textSize="13sp"
-                    android:textColor="#E53935"
-                    android:layout_marginTop="2dp"/>
-            </LinearLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvHistory"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp"
+        tools:listitem="@layout/item_history" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:drawable/toast_frame"
-                android:backgroundTint="#E53935"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
-                android:text="HIGH"
-                android:textColor="#FFFFFF"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/dialog_holo_light_frame"
-            android:backgroundTint="#FFFFFF"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            android:elevation="2dp"
-            android:layout_marginBottom="12dp"
-            android:gravity="center_vertical">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Today, 09:30 PM"
-                    android:textSize="15sp"
-                    android:textColor="#22262A"
-                    android:textStyle="bold"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Pulse: 82 BPM"
-                    android:textSize="13sp"
-                    android:textColor="#4CAF50"
-                    android:layout_marginTop="2dp"/>
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:drawable/toast_frame"
-                android:backgroundTint="#4CAF50"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
-                android:text="NORMAL"
-                android:textColor="#FFFFFF"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/dialog_holo_light_frame"
-            android:backgroundTint="#FFFFFF"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            android:elevation="2dp"
-            android:layout_marginBottom="12dp"
-            android:gravity="center_vertical">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Yesterday, 04:15 PM"
-                    android:textSize="15sp"
-                    android:textColor="#22262A"
-                    android:textStyle="bold"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Pulse: 58 BPM"
-                    android:textSize="13sp"
-                    android:textColor="#1E88E5"
-                    android:layout_marginTop="2dp"/>
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:drawable/toast_frame"
-                android:backgroundTint="#1E88E5"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
-                android:text="LOW"
-                android:textColor="#FFFFFF"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-    </LinearLayout>
-</ScrollView>
+</LinearLayout>

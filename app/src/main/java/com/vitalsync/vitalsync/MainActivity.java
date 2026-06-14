@@ -22,6 +22,15 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNav;
+    private boolean isBluetoothConnected = false;
+
+    public void setBluetoothConnected(boolean connected) {
+        this.isBluetoothConnected = connected;
+    }
+
+    public boolean isBluetoothConnected() {
+        return isBluetoothConnected;
+    }
 
     // 1. استقبال الـ MAC Address وتمريره مباشرة للـ HomeFragment
     private final ActivityResultLauncher<Intent> selectDeviceLauncher = registerForActivityResult(
@@ -77,13 +86,26 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 Fragment selectedFragment = null;
+                int id = item.getItemId();
 
-                if (item.getItemId() == R.id.nav_home) {
+                if (id == R.id.nav_home) {
                     selectedFragment = new HomeFragment();
-                } else if (item.getItemId() == R.id.nav_stats) {
-                    selectedFragment = new StatsFragment();
-                } else if (item.getItemId() == R.id.nav_history) {
-                    selectedFragment = new HistoryFragment();
+                } else if (id == R.id.nav_stats) {
+                    if (isBluetoothConnected) {
+                        selectedFragment = new StatsFragment();
+                    } else {
+                        showLockedFeatureMessage();
+                        return false;
+                    }
+                } else if (id == R.id.nav_history) {
+                    if (isBluetoothConnected) {
+                        selectedFragment = new HistoryFragment();
+                    } else {
+                        showLockedFeatureMessage();
+                        return false;
+                    }
+                } else if (id == R.id.nav_profile) {
+                    selectedFragment = new ProfileFragment();
                 }
 
                 if (selectedFragment != null) {
@@ -94,6 +116,10 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    private void showLockedFeatureMessage() {
+        Toast.makeText(this, "Please connect to the Vital Sync robot via Bluetooth first to unlock stats and history!", Toast.LENGTH_LONG).show();
     }
 
     // دالة فحص الصلاحيات البرمجية المتوافقة مع أجهزة الأندرويد الحديثة (شاومي وريدمي)

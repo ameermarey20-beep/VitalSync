@@ -14,17 +14,29 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FieldValue;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class HomeFragment extends Fragment {
 
     private TextView tvWelcome, tvHeartRate, tvCondition, tvConnectionStatus;
+    private TextView tvOxygenValue, tvBatteryValue;
     private ProgressBar pulseProgressBar;
-    private View viewStatusIndicator;
     private Button btnConnectBluetooth;
+    private LineChart liveChart;
 
     // متغيرات البلوتوث لقراءة بيانات الروبوت
     private BluetoothAdapter bluetoothAdapter;
@@ -32,6 +44,14 @@ public class HomeFragment extends Fragment {
     private InputStream inputStream;
     private boolean isConnected = false;
     private Thread receiveThread;
+
+    // Firebase Data Saving Variables
+    private long lastSaveTime = 0;
+    private static final long SAVE_INTERVAL = 5000; // Save every 5 seconds to avoid overloading Firestore
+
+    // Chart Data Variables
+    private ArrayList<Entry> chartEntries = new ArrayList<>();
+    private int xValue = 0;
 
     // معرف البلوتوث القياسي لقطعة الـ HC-05
     private static final UUID BT_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -46,8 +66,12 @@ public class HomeFragment extends Fragment {
         tvHeartRate = view.findViewById(R.id.tvHeartRate);
         tvCondition = view.findViewById(R.id.tvCondition);
         tvConnectionStatus = view.findViewById(R.id.tvConnectionStatus);
+        tvOxygenValue = view.findViewById(R.id.tvOxygenValue);
+        tvBatteryValue = view.findViewById(R.id.tvBatteryValue);
         pulseProgressBar = view.findViewById(R.id.pulseProgressBar);
-        viewStatusIndicator = view.findViewById(R.id.viewStatusIndicator);
+        liveChart = view.findViewById(R.id.liveChart);
+
+        setupChart();
 
         // ربط زر البلوتوث المضاف للـ XML
         btnConnectBluetooth = view.findViewById(R.id.btnConnectBluetooth);
@@ -84,12 +108,71 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
+    private void setupChart() {
+        liveChart.getDescription().setEnabled(false);
+        liveChart.setTouchEnabled(false);
+        liveChart.setDragEnabled(false);
+        liveChart.setScaleEnabled(false);
+        liveChart.setPinchZoom(false);
+        liveChart.setBackgroundColor(Color.WHITE);
+
+        LineData data = new LineData();
+        liveChart.setData(data);
+
+        XAxis xAxis = liveChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setDrawGridLines(false);
+        xAxis.setAvoidFirstLastClipping(true);
+        xAxis.setEnabled(false);
+
+        liveChart.getAxisLeft().setDrawGridLines(true);
+        liveChart.getAxisRight().setEnabled(false);
+        liveChart.getLegend().setEnabled(false);
+    }
+
+    private void addEntry(int bpm) {
+        LineData data = liveChart.getData();
+
+        if (data != null) {
+            LineDataSet set = (LineDataSet) data.getDataSetByIndex(0);
+
+            if (set == null) {
+                set = createSet();
+                data.addDataSet(set);
+            }
+
+            data.addEntry(new Entry(set.getEntryCount(), bpm), 0);
+            data.notifyDataChanged();
+
+            liveChart.notifyDataChanged();
+            liveChart.setVisibleXRangeMaximum(30);
+            liveChart.moveViewToX(data.getEntryCount());
+        }
+    }
+
+    private LineDataSet createSet() {
+        LineDataSet set = new LineDataSet(null, "Heart Rate");
+        set.setAxisDependency(com.github.mikephil.charting.components.YAxis.AxisDependency.LEFT);
+        set.setColor(ContextCompat.getColor(getContext(), R.color.accentElectric));
+        set.setLineWidth(3f);
+        set.setCircleRadius(0f);
+        set.setDrawFilled(true);
+        set.setFillColor(ContextCompat.getColor(getContext(), R.color.accentElectric));
+        set.setFillAlpha(30);
+        set.setHighLightColor(Color.rgb(244, 117, 117));
+        set.setValueTextColor(Color.TRANSPARENT);
+        set.setDrawValues(false);
+        set.setDrawCircles(false);
+        set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        return set;
+    }
+
     // دالة الاتصال بالروبوت (يتم استدعاؤها من الـ MainActivity بعد اختيار الـ HC-05)
     @SuppressLint("MissingPermission")
     public void connectToRobot(String macAddress) {
         if (tvConnectionStatus != null) {
             tvConnectionStatus.setText("Connecting...");
-            tvConnectionStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#FF9800")));
+            tvConnectionStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#FFB020")));
         }
 
         new Thread(new Runnable() {
@@ -108,6 +191,9 @@ public class HomeFragment extends Fragment {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
+                            if (getActivity() instanceof MainActivity) {
+                                ((MainActivity) getActivity()).setBluetoothConnected(true);
+                            }
                             if (btnConnectBluetooth != null) btnConnectBluetooth.setText("Disconnect");
                             startListeningForBpm(); // البدء بالاستماع للنبض القادم من الروبوت
                         }
@@ -195,27 +281,59 @@ public class HomeFragment extends Fragment {
             pulseProgressBar.setProgress(bpm);
 
             tvConnectionStatus.setText("Connected");
-            tvConnectionStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#4CAF50")));
+            tvConnectionStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.normalBg)));
+            tvConnectionStatus.setTextColor(ContextCompat.getColor(getContext(), R.color.normalText));
 
             if (bpm >= 60 && bpm <= 100) {
                 tvCondition.setText("Normal Pulse");
-                tvCondition.setTextColor(Color.parseColor("#4CAF50"));
-                viewStatusIndicator.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#4CAF50")));
+                tvCondition.setTextColor(ContextCompat.getColor(getContext(), R.color.normalText));
             } else if (bpm > 100) {
                 tvCondition.setText("High Pulse");
-                tvCondition.setTextColor(Color.parseColor("#E53935"));
-                viewStatusIndicator.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#E53935")));
+                tvCondition.setTextColor(ContextCompat.getColor(getContext(), R.color.highText));
             } else {
                 tvCondition.setText("Low Pulse");
-                tvCondition.setTextColor(Color.parseColor("#1E88E5"));
-                viewStatusIndicator.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#1E88E5")));
+                tvCondition.setTextColor(ContextCompat.getColor(getContext(), R.color.lowText));
+            }
+
+            // Update Graph
+            addEntry(bpm);
+
+            // Save to Firestore if the interval has passed
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastSaveTime >= SAVE_INTERVAL) {
+                saveHeartRateToFirestore(bpm);
+                lastSaveTime = currentTime;
             }
         }
+    }
+
+    private void saveHeartRateToFirestore(int bpm) {
+        FireBaseServices fbs = FireBaseServices.getInstance();
+        FirebaseUser currentUser = fbs.getAuth().getCurrentUser();
+        
+        String userId = (currentUser != null) ? currentUser.getUid() : "anonymous_user";
+
+        Map<String, Object> heartRateData = new HashMap<>();
+        heartRateData.put("bpm", bpm);
+        heartRateData.put("timestamp", FieldValue.serverTimestamp());
+        heartRateData.put("userId", userId);
+
+        fbs.getFirestore().collection("heart_rates")
+                .add(heartRateData)
+                .addOnSuccessListener(documentReference -> {
+                    // Successfully saved
+                })
+                .addOnFailureListener(e -> {
+                    // Handle failure if needed
+                });
     }
 
     // قطع الاتصال وإعادة تهيئة العناصر
     private void disconnectDevice() {
         isConnected = false;
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).setBluetoothConnected(false);
+        }
         try {
             if (receiveThread != null) receiveThread.interrupt();
             if (inputStream != null) inputStream.close();
@@ -231,12 +349,12 @@ public class HomeFragment extends Fragment {
             tvCondition.setTextColor(Color.parseColor("#3F4850"));
         }
         if (tvConnectionStatus != null) {
-            tvConnectionStatus.setText("Waiting for Robot...");
-            tvConnectionStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#FF9800")));
+            tvConnectionStatus.setText("Scanning...");
+            tvConnectionStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#FFB020")));
+            tvConnectionStatus.setTextColor(Color.WHITE);
         }
-        if (viewStatusIndicator != null) {
-            viewStatusIndicator.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#9E9E9E")));
-        }
+        if (tvOxygenValue != null) tvOxygenValue.setText("--");
+        if (tvBatteryValue != null) tvBatteryValue.setText("--");
     }
 
     @Override
