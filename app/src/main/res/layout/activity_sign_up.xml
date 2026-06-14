@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center"
+    android:background="#F9F9F9">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="VitalSync"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:textColor="#006492"
+        android:layout_marginBottom="30dp"/>
+
+    <EditText
+        android:id="@+id/etUsername"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:hint="Username"
+        android:inputType="textPersonName"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="@android:drawable/editbox_background"/>
+
+    <EditText
+        android:id="@+id/etEmail"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:hint="Email Address"
+        android:inputType="textEmailAddress"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="@android:drawable/editbox_background"/>
+
+    <EditText
+        android:id="@+id/etPassword"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:padding="12dp"
+        android:layout_marginBottom="24dp"
+        android:background="@android:drawable/editbox_background"/>
+
+    <Button
+        android:id="@+id/btnRegister"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:text="Create Account"
+        android:backgroundTint="#006492"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"/>
+
+</LinearLayout>

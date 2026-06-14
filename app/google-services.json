@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "108102910255",
+    "project_id": "vitalsync111",
+    "storage_bucket": "vitalsync111.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:108102910255:android:e4f9efbac2ed61918fa1da",
+        "android_client_info": {
+          "package_name": "com.vitalsync.vitalsync"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVvfLbGOwB2YUjQa6I5-TQ1GdHBPkCYjY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
