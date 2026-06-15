@@ -26,7 +26,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FieldValue;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -52,10 +51,6 @@ public class HomeFragment extends Fragment {
     // Firebase Data Saving Variables
     private long lastSaveTime = 0;
     private static final long SAVE_INTERVAL = 5000; // Save every 5 seconds to avoid overloading Firestore
-
-    // Chart Data Variables
-    private ArrayList<Entry> chartEntries = new ArrayList<>();
-    private int xValue = 0;
 
     // معرف البلوتوث القياسي لقطعة الـ HC-05
     private static final UUID BT_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -83,10 +78,9 @@ public class HomeFragment extends Fragment {
 
         if (btnRescueGuide != null) {
             btnRescueGuide.setOnClickListener(v -> {
-                Intent intent = new Intent(getActivity(), RescueGuideActivity.class);
-                intent.putExtra("BPM", lastBpmValue);
-                intent.putExtra("IS_ATHLETE", isAthlete);
-                startActivity(intent);
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).navigateToRescue();
+                }
             });
         }
 
@@ -98,10 +92,10 @@ public class HomeFragment extends Fragment {
         if (getActivity() != null && getActivity().getIntent() != null) {
             String username = getActivity().getIntent().getStringExtra("USER_NAME");
             if (username != null) {
-                tvWelcome.setText("Welcome, " + username + "!");
+                tvWelcome.setText(getString(R.string.welcome_user, username));
             } else if (FireBaseServices.getInstance().getAuth().getCurrentUser() != null) {
                 String email = FireBaseServices.getInstance().getAuth().getCurrentUser().getEmail();
-                tvWelcome.setText("Welcome, " + email + "!");
+                tvWelcome.setText(getString(R.string.welcome_user, email));
             }
         }
 
@@ -147,33 +141,38 @@ public class HomeFragment extends Fragment {
     }
 
     private void addEntry(int bpm) {
+        if (liveChart == null || liveChart.getData() == null) return;
         LineData data = liveChart.getData();
 
-        if (data != null) {
-            LineDataSet set = (LineDataSet) data.getDataSetByIndex(0);
+        LineDataSet set = (LineDataSet) data.getDataSetByIndex(0);
 
-            if (set == null) {
-                set = createSet();
-                data.addDataSet(set);
-            }
-
-            data.addEntry(new Entry(set.getEntryCount(), bpm), 0);
-            data.notifyDataChanged();
-
-            liveChart.notifyDataChanged();
-            liveChart.setVisibleXRangeMaximum(30);
-            liveChart.moveViewToX(data.getEntryCount());
+        if (set == null) {
+            set = createSet();
+            data.addDataSet(set);
         }
+
+        data.addEntry(new Entry(set.getEntryCount(), bpm), 0);
+        data.notifyDataChanged();
+
+        liveChart.notifyDataSetChanged();
+        liveChart.setVisibleXRangeMaximum(30);
+        liveChart.moveViewToX(data.getEntryCount());
     }
 
     private LineDataSet createSet() {
         LineDataSet set = new LineDataSet(null, "Heart Rate");
         set.setAxisDependency(com.github.mikephil.charting.components.YAxis.AxisDependency.LEFT);
-        set.setColor(ContextCompat.getColor(getContext(), R.color.accentElectric));
+        
+        int accentColor = Color.BLUE; // Fallback
+        if (getContext() != null) {
+            accentColor = ContextCompat.getColor(getContext(), R.color.accentElectric);
+        }
+        
+        set.setColor(accentColor);
         set.setLineWidth(3f);
         set.setCircleRadius(0f);
         set.setDrawFilled(true);
-        set.setFillColor(ContextCompat.getColor(getContext(), R.color.accentElectric));
+        set.setFillColor(accentColor);
         set.setFillAlpha(30);
         set.setHighLightColor(Color.rgb(244, 117, 117));
         set.setValueTextColor(Color.TRANSPARENT);
@@ -210,7 +209,7 @@ public class HomeFragment extends Fragment {
                             if (getActivity() instanceof MainActivity) {
                                 ((MainActivity) getActivity()).setBluetoothConnected(true);
                             }
-                            if (btnConnectBluetooth != null) btnConnectBluetooth.setText("Disconnect");
+                            if (btnConnectBluetooth != null) btnConnectBluetooth.setText(R.string.disconnect);
                             startListeningForBpm(); // البدء بالاستماع للنبض القادم من الروبوت
                         }
                     });
@@ -268,7 +267,7 @@ public class HomeFragment extends Fragment {
                                                 } else {
                                                     if (tvHeartRate != null) tvHeartRate.setText("--");
                                                     if (tvCondition != null) {
-                                                        tvCondition.setText("Place your finger");
+                                                        tvCondition.setText(R.string.place_finger);
                                                         tvCondition.setTextColor(Color.parseColor("#7F8C8D"));
                                                     }
                                                 }
@@ -294,22 +293,28 @@ public class HomeFragment extends Fragment {
     public void updateHeartRateUI(int bpm) {
         if (tvHeartRate != null) {
             this.lastBpmValue = bpm;
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).setLastBpm(bpm);
+            }
             tvHeartRate.setText(String.valueOf(bpm));
             pulseProgressBar.setProgress(bpm);
 
-            tvConnectionStatus.setText("Connected");
-            tvConnectionStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.normalBg)));
-            tvConnectionStatus.setTextColor(ContextCompat.getColor(getContext(), R.color.normalText));
+            tvConnectionStatus.setText(R.string.connected);
+            
+            if (getContext() != null) {
+                tvConnectionStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.normalBg)));
+                tvConnectionStatus.setTextColor(ContextCompat.getColor(getContext(), R.color.normalText));
 
-            if (bpm >= 60 && bpm <= 100) {
-                tvCondition.setText("Normal Pulse");
-                tvCondition.setTextColor(ContextCompat.getColor(getContext(), R.color.normalText));
-            } else if (bpm > 100) {
-                tvCondition.setText("High Pulse");
-                tvCondition.setTextColor(ContextCompat.getColor(getContext(), R.color.highText));
-            } else {
-                tvCondition.setText("Low Pulse");
-                tvCondition.setTextColor(ContextCompat.getColor(getContext(), R.color.lowText));
+                if (bpm >= 60 && bpm <= 100) {
+                    tvCondition.setText(R.string.normal_pulse);
+                    tvCondition.setTextColor(ContextCompat.getColor(getContext(), R.color.normalText));
+                } else if (bpm > 100) {
+                    tvCondition.setText(R.string.high_pulse);
+                    tvCondition.setTextColor(ContextCompat.getColor(getContext(), R.color.highText));
+                } else {
+                    tvCondition.setText(R.string.low_pulse);
+                    tvCondition.setTextColor(ContextCompat.getColor(getContext(), R.color.lowText));
+                }
             }
 
             // Update Graph
@@ -376,14 +381,14 @@ public class HomeFragment extends Fragment {
             e.printStackTrace();
         }
 
-        if (btnConnectBluetooth != null) btnConnectBluetooth.setText("Connect Bluetooth");
+        if (btnConnectBluetooth != null) btnConnectBluetooth.setText(R.string.connect_bluetooth);
         if (tvHeartRate != null) tvHeartRate.setText("--");
         if (tvCondition != null) {
-            tvCondition.setText("No Data");
+            tvCondition.setText(R.string.no_data);
             tvCondition.setTextColor(Color.parseColor("#3F4850"));
         }
         if (tvConnectionStatus != null) {
-            tvConnectionStatus.setText("Scanning...");
+            tvConnectionStatus.setText(R.string.scanning);
             tvConnectionStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#FFB020")));
             tvConnectionStatus.setTextColor(Color.WHITE);
         }

@@ -30,9 +30,24 @@ public class HistoryFragment extends Fragment {
         adapter = new HistoryAdapter(recordList);
         rvHistory.setAdapter(adapter);
 
-        fetchHistoryFromFirestore();
+        checkConnectionAndFetch();
 
         return view;
+    }
+
+    private void checkConnectionAndFetch() {
+        boolean isConnected = false;
+        if (getActivity() instanceof MainActivity) {
+            isConnected = ((MainActivity) getActivity()).isBluetoothConnected();
+        }
+
+        if (isConnected) {
+            fetchHistoryFromFirestore();
+        } else {
+            tvHistorySubtitle.setText("Waiting for live connection with Vital Sync robot...");
+            recordList.clear();
+            adapter.notifyDataSetChanged();
+        }
     }
 
     private void fetchHistoryFromFirestore() {

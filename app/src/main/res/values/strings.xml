@@ -1,3 +1,32 @@
 <resources>
     <string name="app_name">VitalSync</string>
+    <string name="welcome_user">Welcome, %1$s!</string>
+    <string name="rescue_guide">Rescue Guide</string>
+    <string name="connect_bluetooth">Connect Bluetooth</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="no_data">No Data</string>
+    <string name="place_finger">Place your finger</string>
+    <string name="normal_pulse">Normal Pulse</string>
+    <string name="high_pulse">High Pulse</string>
+    <string name="low_pulse">Low Pulse</string>
+    <string name="scanning">Scanning...</string>
+    <string name="connecting">Connecting...</string>
+    <string name="connected">Connected</string>
+    <string name="failed">Failed</string>
+
+    <!-- Rescue Guide Arabic -->
+    <string name="rescue_guide_ar">دليل الإنقاذ</string>
+    <string name="emergency_call">اتصال بالطوارئ (101)</string>
+    <string name="current_reading">القراءة الحالية: %1$d نبضة/دقيقة</string>
+
+    <!-- Profile -->
+    <string name="health_info">HEALTH INFORMATION</string>
+    <string name="age">Age</string>
+    <string name="blood_type">Blood Type</string>
+    <string name="weight_kg">Weight (kg)</string>
+    <string name="height_cm">Height (cm)</string>
+    <string name="chronic_conditions">Chronic Conditions / Allergies</string>
+    <string name="save_health_data">Save Health Data</string>
+    <string name="logout">Logout</string>
+    <string name="i_am_athlete">I am an Athlete</string>
 </resources>

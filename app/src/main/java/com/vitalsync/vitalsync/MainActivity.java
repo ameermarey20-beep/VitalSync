@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNav;
     private boolean isBluetoothConnected = false;
+    private int lastBpm = 0;
 
     public void setBluetoothConnected(boolean connected) {
         this.isBluetoothConnected = connected;
@@ -30,6 +31,14 @@ public class MainActivity extends AppCompatActivity {
 
     public boolean isBluetoothConnected() {
         return isBluetoothConnected;
+    }
+
+    public void setLastBpm(int bpm) {
+        this.lastBpm = bpm;
+    }
+
+    public int getLastBpm() {
+        return lastBpm;
     }
 
     // 1. استقبال الـ MAC Address وتمريره مباشرة للـ HomeFragment
@@ -91,21 +100,13 @@ public class MainActivity extends AppCompatActivity {
                 if (id == R.id.nav_home) {
                     selectedFragment = new HomeFragment();
                 } else if (id == R.id.nav_stats) {
-                    if (isBluetoothConnected) {
-                        selectedFragment = new StatsFragment();
-                    } else {
-                        showLockedFeatureMessage();
-                        return false;
-                    }
+                    selectedFragment = new StatsFragment();
                 } else if (id == R.id.nav_history) {
-                    if (isBluetoothConnected) {
-                        selectedFragment = new HistoryFragment();
-                    } else {
-                        showLockedFeatureMessage();
-                        return false;
-                    }
+                    selectedFragment = new HistoryFragment();
+                } else if (id == R.id.nav_rescue) {
+                    selectedFragment = new RescueGuideFragment();
                 } else if (id == R.id.nav_profile) {
-                    selectedFragment = new ProfileFragment();
+                    selectedFragment = new Fragment();
                 }
 
                 if (selectedFragment != null) {
@@ -148,5 +149,9 @@ public class MainActivity extends AppCompatActivity {
     public void openBluetoothDeviceList() {
         Intent intent = new Intent(MainActivity.this, SelectDeviceActivity.class);
         selectDeviceLauncher.launch(intent);
+    }
+
+    public void navigateToRescue() {
+        bottomNav.setSelectedItemId(R.id.nav_rescue);
     }
 }

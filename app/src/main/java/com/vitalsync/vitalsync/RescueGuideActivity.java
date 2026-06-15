@@ -35,13 +35,13 @@ public class RescueGuideActivity extends AppCompatActivity {
         llCardContent = findViewById(R.id.llCardContent);
         btnEmergencyCall = findViewById(R.id.btnEmergencyCall);
 
-        tvGuideHeader.setText("دليل الإنقاذ");
-        btnEmergencyCall.setText("اتصال بالطوارئ (101)");
+        tvGuideHeader.setText(R.string.rescue_guide_ar);
+        btnEmergencyCall.setText(R.string.emergency_call);
 
         int bpm = getIntent().getIntExtra("BPM", 0);
         boolean isAthlete = getIntent().getBooleanExtra("IS_ATHLETE", false);
 
-        tvCurrentStatus.setText("القراءة الحالية: " + bpm + " نبضة/دقيقة");
+        tvCurrentStatus.setText(getString(R.string.current_reading, bpm));
 
         updateGuideUI(bpm, isAthlete);
 

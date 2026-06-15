@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -19,14 +20,43 @@ import java.util.ArrayList;
 public class StatsFragment extends Fragment {
 
     private LineChart statsTrendChart;
+    private TextView tvHighest, tvLowest, tvAverage;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_stats, container, false);
         statsTrendChart = view.findViewById(R.id.statsTrendChart);
+        tvHighest = view.findViewById(R.id.tvStatHighest);
+        tvLowest = view.findViewById(R.id.tvStatLowest);
+        tvAverage = view.findViewById(R.id.tvStatAverage);
         
-        setupPremiumChart();
+        checkConnectionAndUI();
         return view;
+    }
+
+    private void checkConnectionAndUI() {
+        boolean isConnected = false;
+        if (getActivity() instanceof MainActivity) {
+            isConnected = ((MainActivity) getActivity()).isBluetoothConnected();
+        }
+
+        if (isConnected) {
+            setupPremiumChart();
+            // In a real app, you'd fetch these from Firestore analytics
+        } else {
+            showDisconnectedState();
+        }
+    }
+
+    private void showDisconnectedState() {
+        tvHighest.setText("--");
+        tvLowest.setText("--");
+        tvAverage.setText("--");
+        
+        statsTrendChart.setNoDataText("Waiting for live connection with Vital Sync robot...");
+        statsTrendChart.setNoDataTextColor(Color.parseColor("#9FB3C8"));
+        statsTrendChart.setData(null);
+        statsTrendChart.invalidate();
     }
 
     private void setupPremiumChart() {
